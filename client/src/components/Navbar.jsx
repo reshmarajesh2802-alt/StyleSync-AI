@@ -11,7 +11,7 @@ function Navbar() {
 
           {/* Logo */}
           <a
-            href="#"
+            href="/"
             className="text-xl font-bold tracking-tight sm:text-2xl"
           >
             <span className="text-pink-300">
@@ -27,43 +27,47 @@ function Navbar() {
           <div className="hidden items-center gap-8 md:flex">
 
             <a
-              href="#"
+              href="/"
               className="text-sm text-white/70 transition hover:text-white"
             >
               Home
             </a>
 
             <a
-              href="#features"
+              href="/#features"
               className="text-sm text-white/70 transition hover:text-white"
             >
               Features
             </a>
 
             <a
-              href="#how-it-works"
+              href="/#how-it-works"
               className="text-sm text-white/70 transition hover:text-white"
             >
               How It Works
             </a>
 
             <a
-              href="#collections"
+              href="/#collections"
               className="text-sm text-white/70 transition hover:text-white"
             >
               Collections
             </a>
 
-            <button className="rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-black transition duration-300 hover:scale-105 hover:bg-pink-100">
+            {/* Desktop Get Started */}
+            <a
+              href="/register"
+              className="rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-black transition duration-300 hover:scale-105 hover:bg-pink-100"
+            >
               Get Started
-            </button>
+            </a>
 
           </div>
 
-          {/* Mobile Button */}
+          {/* Mobile Menu Button */}
           <button
             onClick={() => setMenuOpen(!menuOpen)}
-            className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-xl md:hidden"
+            className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-xl transition hover:bg-white/10 md:hidden"
             aria-label="Toggle menu"
           >
             {menuOpen ? "×" : "☰"}
@@ -76,7 +80,7 @@ function Navbar() {
           <div className="mt-4 space-y-2 border-t border-white/10 pt-4 md:hidden">
 
             <a
-              href="#"
+              href="/"
               onClick={() => setMenuOpen(false)}
               className="block rounded-xl px-4 py-3 text-white/80 transition hover:bg-white/5"
             >
@@ -84,7 +88,7 @@ function Navbar() {
             </a>
 
             <a
-              href="#features"
+              href="/#features"
               onClick={() => setMenuOpen(false)}
               className="block rounded-xl px-4 py-3 text-white/80 transition hover:bg-white/5"
             >
@@ -92,7 +96,7 @@ function Navbar() {
             </a>
 
             <a
-              href="#how-it-works"
+              href="/#how-it-works"
               onClick={() => setMenuOpen(false)}
               className="block rounded-xl px-4 py-3 text-white/80 transition hover:bg-white/5"
             >
@@ -100,16 +104,21 @@ function Navbar() {
             </a>
 
             <a
-              href="#collections"
+              href="/#collections"
               onClick={() => setMenuOpen(false)}
               className="block rounded-xl px-4 py-3 text-white/80 transition hover:bg-white/5"
             >
               Collections
             </a>
 
-            <button className="mt-2 w-full rounded-xl bg-white py-3 font-semibold text-black">
+            {/* Mobile Get Started */}
+            <a
+              href="/register"
+              onClick={() => setMenuOpen(false)}
+              className="block rounded-full bg-white px-5 py-3 text-center text-sm font-semibold text-black transition hover:scale-[1.02] hover:bg-pink-100"
+            >
               Get Started
-            </button>
+            </a>
 
           </div>
         )}
