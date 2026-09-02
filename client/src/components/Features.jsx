@@ -1,4 +1,6 @@
-function Features() {
+import React from "react";
+
+export function Features() {
   const features = [
     {
       icon: "🤖",
@@ -37,21 +39,17 @@ function Features() {
   return (
     <section
       id="features"
-      className="relative overflow-hidden bg-black px-5 py-24 sm:px-6 sm:py-28"
+      className="relative overflow-hidden bg-black px-5 py-24 text-white sm:px-6 sm:py-28"
     >
-      {/* Background Glow */}
+      {/* Background Glows */}
       <div className="animate-pulse-glow pointer-events-none absolute left-1/4 top-20 h-72 w-72 rounded-full bg-pink-500/10 blur-[120px]" />
-
       <div className="animate-pulse-glow pointer-events-none absolute bottom-0 right-0 h-72 w-72 rounded-full bg-purple-500/10 blur-[120px]" />
 
       <div className="relative mx-auto max-w-7xl">
-
-        {/* ================= HEADING ================= */}
+        {/* Section Heading */}
         <div className="animate-fade-up mx-auto mb-16 max-w-3xl text-center">
-
           <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 backdrop-blur-xl">
             <span className="h-2 w-2 animate-pulse rounded-full bg-pink-400" />
-
             <span className="text-xs font-medium uppercase tracking-[0.2em] text-gray-300">
               The StyleSync Experience
             </span>
@@ -59,34 +57,25 @@ function Features() {
 
           <h2 className="text-4xl font-bold leading-tight sm:text-5xl lg:text-6xl">
             Fashion Meets{" "}
-            <span className="text-pink-300">
-              Intelligence.
-            </span>
+            <span className="text-pink-300">Intelligence.</span>
           </h2>
 
           <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-gray-400 sm:text-lg">
             From discovering your personal style to managing your boutique,
             StyleSync brings everything together in one intelligent experience.
           </p>
-
         </div>
 
-        {/* ================= FEATURE GRID ================= */}
+        {/* Feature Grid */}
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-
-          {features.map((feature, index) => (
-            <div
-              key={feature.title}
-              className="group relative"
-            >
-
-              {/* Card */}
-              <div className="glass relative flex h-full min-h-[340px] flex-col overflow-hidden rounded-[2rem] p-7 shadow-2xl transition duration-500 hover:-translate-y-3 hover:border-pink-400/40 hover:shadow-pink-500/10 sm:p-8">
-
-                {/* Shine */}
+          {features.map((feature) => (
+            <div key={feature.title} className="group relative">
+              {/* Card Container */}
+              <div className="glass relative flex h-full min-h-[340px] flex-col overflow-hidden rounded-[2rem] border border-white/10 bg-white/5 p-7 shadow-2xl backdrop-blur-2xl transition duration-500 hover:-translate-y-3 hover:border-pink-400/40 hover:shadow-pink-500/10 sm:p-8">
+                {/* Shine Hover Effect */}
                 <div className="pointer-events-none absolute -left-24 top-0 h-full w-20 rotate-12 bg-white/10 blur-xl transition duration-700 group-hover:translate-x-[450px]" />
 
-                {/* Number */}
+                {/* Card Number */}
                 <div className="absolute right-6 top-5 text-6xl font-bold text-white/[0.04] transition duration-500 group-hover:text-pink-300/10">
                   {feature.number}
                 </div>
@@ -111,43 +100,31 @@ function Features() {
                   {feature.description}
                 </p>
 
-                {/* Bottom */}
+                {/* Card Footer Action */}
                 <div className="relative mt-auto pt-8">
-
                   <div className="flex items-center justify-between border-t border-white/10 pt-5">
-
                     <span className="text-xs text-gray-500">
                       Explore feature
                     </span>
-
                     <span className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/5 text-pink-300 transition duration-300 group-hover:translate-x-1 group-hover:border-pink-400/30 group-hover:bg-pink-400/10">
                       →
                     </span>
-
                   </div>
-
                 </div>
-
               </div>
-
             </div>
           ))}
-
         </div>
 
-        {/* ================= BOTTOM STATEMENT ================= */}
+        {/* Bottom Statement */}
         <div className="animate-fade-up mt-16 text-center">
-
           <p className="text-sm text-gray-500">
             One platform. Endless possibilities.
           </p>
-
           <p className="mt-2 text-lg font-medium text-white sm:text-xl">
             Your fashion journey starts here. ✨
           </p>
-
         </div>
-
       </div>
     </section>
   );

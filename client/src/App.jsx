@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+
 import Dashboard from "./pages/Dashboard";
 import Home from "./pages/Home";
 import Register from "./pages/Register";
@@ -6,24 +7,32 @@ import Login from "./pages/Login";
 import Stylist from "./pages/Stylist";
 import Collections from "./pages/Collections";
 import Profile from "./pages/Profile";
+import Cart from "./pages/Cart";
+import Orders from "./pages/Orders";
+
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
 
-        {/* Landing Page */}
+        {/* Public Routes */}
         <Route path="/" element={<Home />} />
-
-        {/* Authentication */}
         <Route path="/register" element={<Register />} />
-
-        <Route path="/dashboard" element={<Dashboard />} />
-
         <Route path="/login" element={<Login />} />
-        <Route path="/stylist" element={<Stylist />} />
-        <Route path="/collections" element={<Collections />} />
-        <Route path="/profile" element={<Profile />} />
+
+        {/* Protected Routes */}
+        <Route element={<ProtectedRoute />}>
+
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/stylist" element={<Stylist />} />
+          <Route path="/collections" element={<Collections />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/orders" element={<Orders />} />
+
+        </Route>
 
       </Routes>
     </BrowserRouter>

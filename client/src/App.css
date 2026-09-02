@@ -1,22 +1,25 @@
+/* Component Styling */
 .counter {
   font-size: 16px;
   padding: 5px 10px;
   border-radius: 5px;
-  color: var(--accent);
-  background: var(--accent-bg);
+  color: var(--accent, #ec4899);
+  background: var(--accent-bg, rgba(236, 72, 153, 0.1));
   border: 2px solid transparent;
-  transition: border-color 0.3s;
+  transition: border-color 0.3s ease;
   margin-bottom: 24px;
 
   &:hover {
-    border-color: var(--accent-border);
+    border-color: var(--accent-border, rgba(236, 72, 153, 0.4));
   }
+
   &:focus-visible {
-    outline: 2px solid var(--accent);
+    outline: 2px solid var(--accent, #ec4899);
     outline-offset: 2px;
   }
 }
 
+/* 3D Hero Element Layout */
 .hero {
   position: relative;
 
@@ -25,6 +28,7 @@
   .vite {
     inset-inline: 0;
     margin: 0 auto;
+    will-change: transform;
   }
 
   .base {
@@ -42,8 +46,7 @@
     z-index: 1;
     top: 34px;
     height: 28px;
-    transform: perspective(2000px) rotateZ(300deg) rotateX(44deg) rotateY(39deg)
-      scale(1.4);
+    transform: perspective(2000px) rotateZ(300deg) rotateX(44deg) rotateY(39deg) scale(1.4);
   }
 
   .vite {
@@ -51,11 +54,11 @@
     top: 107px;
     height: 26px;
     width: auto;
-    transform: perspective(2000px) rotateZ(300deg) rotateX(40deg) rotateY(39deg)
-      scale(0.8);
+    transform: perspective(2000px) rotateZ(300deg) rotateX(40deg) rotateY(39deg) scale(0.8);
   }
 }
 
+/* Central Layout Container */
 #center {
   display: flex;
   flex-direction: column;
@@ -70,14 +73,16 @@
   }
 }
 
+/* Next Steps Action Grid */
 #next-steps {
   display: flex;
-  border-top: 1px solid var(--border);
+  border-top: 1px solid var(--border, rgba(255, 255, 255, 0.1));
   text-align: left;
 
   & > div {
     flex: 1 1 0;
     padding: 32px;
+
     @media (max-width: 1024px) {
       padding: 24px 20px;
     }
@@ -96,14 +101,15 @@
 }
 
 #docs {
-  border-right: 1px solid var(--border);
+  border-right: 1px solid var(--border, rgba(255, 255, 255, 0.1));
 
   @media (max-width: 1024px) {
     border-right: none;
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid var(--border, rgba(255, 255, 255, 0.1));
   }
 }
 
+/* Social & Link Lists */
 #next-steps ul {
   list-style: none;
   padding: 0;
@@ -116,20 +122,21 @@
   }
 
   a {
-    color: var(--text-h);
+    color: var(--text-h, #ffffff);
     font-size: 16px;
     border-radius: 6px;
-    background: var(--social-bg);
+    background: var(--social-bg, rgba(255, 255, 255, 0.05));
     display: flex;
     padding: 6px 12px;
     align-items: center;
     gap: 8px;
     text-decoration: none;
-    transition: box-shadow 0.3s;
+    transition: box-shadow 0.3s ease, background-color 0.2s ease;
 
     &:hover {
-      box-shadow: var(--shadow);
+      box-shadow: var(--shadow, 0 4px 12px rgba(0, 0, 0, 0.3));
     }
+
     .button-icon {
       height: 18px;
       width: 18px;
@@ -153,9 +160,11 @@
   }
 }
 
+/* Structural Spacers and Tick Markers */
 #spacer {
   height: 88px;
-  border-top: 1px solid var(--border);
+  border-top: 1px solid var(--border, rgba(255, 255, 255, 0.1));
+
   @media (max-width: 1024px) {
     height: 48px;
   }
@@ -170,15 +179,18 @@
     content: '';
     position: absolute;
     top: -4.5px;
+    width: 0;
+    height: 0;
     border: 5px solid transparent;
   }
 
   &::before {
     left: 0;
-    border-left-color: var(--border);
+    border-left-color: var(--border, rgba(255, 255, 255, 0.2));
   }
+
   &::after {
     right: 0;
-    border-right-color: var(--border);
+    border-right-color: var(--border, rgba(255, 255, 255, 0.2));
   }
 }

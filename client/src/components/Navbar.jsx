@@ -1,31 +1,23 @@
-import { useState } from "react";
+import React, { useState } from "react";
 
-function Navbar() {
+export function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
     <nav className="fixed left-0 top-0 z-50 w-full px-4 pt-4 sm:px-6">
       <div className="mx-auto max-w-7xl rounded-2xl border border-white/10 bg-black/60 px-5 py-4 shadow-2xl backdrop-blur-2xl">
-
         <div className="flex items-center justify-between">
-
           {/* Logo */}
           <a
             href="/"
             className="text-xl font-bold tracking-tight sm:text-2xl"
           >
-            <span className="text-pink-300">
-              StyleSync
-            </span>
-
-            <span className="text-white">
-              {" "}AI
-            </span>
+            <span className="text-pink-300">StyleSync</span>
+            <span className="text-white"> AI</span>
           </a>
 
           {/* Desktop Navigation */}
           <div className="hidden items-center gap-8 md:flex">
-
             <a
               href="/"
               className="text-sm text-white/70 transition hover:text-white"
@@ -61,24 +53,23 @@ function Navbar() {
             >
               Get Started
             </a>
-
           </div>
 
           {/* Mobile Menu Button */}
           <button
+            type="button"
             onClick={() => setMenuOpen(!menuOpen)}
             className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-xl transition hover:bg-white/10 md:hidden"
             aria-label="Toggle menu"
+            aria-expanded={menuOpen}
           >
             {menuOpen ? "×" : "☰"}
           </button>
-
         </div>
 
         {/* Mobile Menu */}
         {menuOpen && (
           <div className="mt-4 space-y-2 border-t border-white/10 pt-4 md:hidden">
-
             <a
               href="/"
               onClick={() => setMenuOpen(false)}
@@ -119,10 +110,8 @@ function Navbar() {
             >
               Get Started
             </a>
-
           </div>
         )}
-
       </div>
     </nav>
   );
