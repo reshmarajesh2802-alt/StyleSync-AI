@@ -2,7 +2,9 @@ const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-// Generate JWT
+// =========================
+// GENERATE JWT
+// =========================
 const generateToken = (user) => {
   return jwt.sign(
     {
@@ -22,7 +24,6 @@ const generateToken = (user) => {
 const signup = async (req, res) => {
   try {
     const { name, email, password } = req.body;
-    
 
     // Check required fields
     if (!name || !email || !password) {
@@ -31,7 +32,7 @@ const signup = async (req, res) => {
       });
     }
 
-    // Check if user already exists
+    // Check existing user
     const existingUser = await User.findOne({ email });
 
     if (existingUser) {
@@ -62,9 +63,13 @@ const signup = async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
+        phone: user.phone || "",
+        address: user.address || {},
       },
     });
   } catch (error) {
+    console.error("Signup error:", error);
+
     res.status(500).json({
       message: "Signup failed",
       error: error.message,
@@ -117,9 +122,13 @@ const signin = async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
+        phone: user.phone || "",
+        address: user.address || {},
       },
     });
   } catch (error) {
+    console.error("Signin error:", error);
+
     res.status(500).json({
       message: "Signin failed",
       error: error.message,
@@ -137,7 +146,7 @@ const logout = async (req, res) => {
 };
 
 // =========================
-// PROFILE
+// GET PROFILE
 // =========================
 const profile = async (req, res) => {
   try {
@@ -153,8 +162,82 @@ const profile = async (req, res) => {
       user,
     });
   } catch (error) {
+    console.error("Profile error:", error);
+
     res.status(500).json({
       message: "Failed to fetch profile",
+      error: error.message,
+    });
+  }
+};
+
+// =========================
+// UPDATE PROFILE
+// =========================
+const updateProfile = async (req, res) => {
+  try {
+    const {
+      name,
+      phone,
+      address,
+    } = req.body;
+
+    const user = await User.findById(req.user.id);
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    // =========================
+    // UPDATE NAME
+    // =========================
+    if (name !== undefined) {
+      if (!name.trim()) {
+        return res.status(400).json({
+          message: "Name cannot be empty",
+        });
+      }
+
+      user.name = name.trim();
+    }
+
+    // =========================
+    // UPDATE PHONE
+    // =========================
+    if (phone !== undefined) {
+      user.phone = phone.trim();
+    }
+
+    // =========================
+    // UPDATE ADDRESS
+    // =========================
+    if (address !== undefined) {
+      user.address = {
+        ...(user.address?.toObject
+          ? user.address.toObject()
+          : user.address || {}),
+        ...address,
+      };
+    }
+
+    await user.save();
+
+    // Get updated user without password
+    const updatedUser = await User.findById(
+      user._id
+    ).select("-password");
+
+    res.status(200).json({
+      message: "Profile updated successfully",
+      user: updatedUser,
+    });
+  } catch (error) {
+    console.error("Update profile error:", error);
+
+    res.status(500).json({
+      message: "Failed to update profile",
       error: error.message,
     });
   }
@@ -169,6 +252,7 @@ const checkUser = async (req, res) => {
     user: req.user,
   });
 };
+
 // =========================
 // CHECK ADMIN
 // =========================
@@ -181,11 +265,15 @@ const checkAdmin = async (req, res) => {
   });
 };
 
+// =========================
+// EXPORT
+// =========================
 module.exports = {
   signup,
   signin,
   logout,
   profile,
+  updateProfile,
   checkUser,
   checkAdmin,
 };
