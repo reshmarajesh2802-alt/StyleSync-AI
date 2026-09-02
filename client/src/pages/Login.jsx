@@ -1,18 +1,18 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { Eye, EyeOff } from "lucide-react";
 
-const API_URL = "http://localhost:5000/api";
+const API_URL = "/api";
 
-export function Register() {
+export function Login() {
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
-    name: "",
     email: "",
     password: "",
-    confirmPassword: "",
   });
 
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -23,51 +23,45 @@ export function Register() {
     });
   };
 
+  const fillDemoAccount = (demoEmail, demoPass) => {
+    setFormData({
+      email: demoEmail,
+      password: demoPass,
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-
-    // Client-side validation
-    if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match.");
-      return;
-    }
-
-    if (formData.password.length < 6) {
-      setError("Password must be at least 6 characters long.");
-      return;
-    }
-
     setLoading(true);
 
     try {
-      const response = await fetch(`${API_URL}/auth/signup`, {
+      const response = await fetch(`${API_URL}/auth/signin`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          name: formData.name,
-          email: formData.email,
-          password: formData.password,
-        }),
+        body: JSON.stringify(formData),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Registration failed");
+        throw new Error(data.message || "Invalid email or password");
       }
 
-      // Automatically store session if token returned, or redirect to login
       if (data.token) {
         localStorage.setItem("token", data.token);
         if (data.user) {
           localStorage.setItem("user", JSON.stringify(data.user));
         }
-        navigate("/dashboard");
+        if (data.user && data.user.role === 'admin') {
+          navigate("/admin");
+        } else {
+          navigate("/dashboard");
+        }
       } else {
-        navigate("/login");
+        setError("Sign in failed. No token received.");
       }
     } catch (err) {
       setError(err.message);
@@ -90,59 +84,38 @@ export function Register() {
             <span className="text-white"> AI</span>
           </Link>
 
-          <p className="mt-3 text-sm text-gray-500">
-            Create your personalized style profile ✨
+          <p className="mt-3 text-sm text-gray-400">
+            Welcome back to your personalized wardrobe ✨
           </p>
         </div>
 
         {/* Glass Card */}
         <div className="rounded-[2rem] border border-white/10 bg-white/[0.06] p-7 shadow-2xl backdrop-blur-2xl sm:p-9">
           <div className="mb-8">
-            <p className="mb-2 text-sm uppercase tracking-[0.25em] text-pink-400">
-              Get Started
+            <p className="mb-2 text-sm uppercase tracking-[0.25em] text-pink-400 font-semibold">
+              WELCOME BACK
             </p>
 
-            <h1 className="text-3xl font-bold">Create Account</h1>
+            <h1 className="text-3xl font-bold">Sign In</h1>
 
-            <p className="mt-2 text-sm text-gray-500">
-              Join StyleSync to start styling with AI.
+            <p className="mt-2 text-sm text-gray-400">
+              Enter your details to access your dashboard.
             </p>
           </div>
 
           {/* Error Message */}
           {error && (
-            <div className="mb-5 rounded-2xl border border-red-400/20 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+            <div className="mb-5 rounded-2xl border border-red-400/30 bg-red-500/20 px-4 py-3 text-sm font-medium text-red-300 text-center">
               {error}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Full Name */}
-            <div>
-              <label
-                htmlFor="name"
-                className="mb-2 block text-sm text-gray-300"
-              >
-                Full Name
-              </label>
-
-              <input
-                id="name"
-                name="name"
-                type="text"
-                value={formData.name}
-                onChange={handleChange}
-                placeholder="Jane Doe"
-                required
-                className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-white outline-none transition placeholder:text-gray-600 focus:border-pink-400/50 focus:bg-white/10"
-              />
-            </div>
-
+          <form onSubmit={handleSubmit} className="space-y-5">
             {/* Email */}
             <div>
               <label
                 htmlFor="email"
-                className="mb-2 block text-sm text-gray-300"
+                className="mb-2 block text-xs font-semibold text-gray-300"
               >
                 Email
               </label>
@@ -153,72 +126,84 @@ export function Register() {
                 type="email"
                 value={formData.email}
                 onChange={handleChange}
-                placeholder="you@example.com"
+                placeholder="customer@stylesync.ai"
                 required
-                className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-white outline-none transition placeholder:text-gray-600 focus:border-pink-400/50 focus:bg-white/10"
+                className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm text-white outline-none transition placeholder:text-gray-600 focus:border-pink-400/50 focus:bg-white/10"
               />
             </div>
 
-            {/* Password */}
+            {/* Password Field with Eye Toggle */}
             <div>
               <label
                 htmlFor="password"
-                className="mb-2 block text-sm text-gray-300"
+                className="mb-2 block text-xs font-semibold text-gray-300"
               >
                 Password
               </label>
 
-              <input
-                id="password"
-                name="password"
-                type="password"
-                value={formData.password}
-                onChange={handleChange}
-                placeholder="At least 6 characters"
-                required
-                className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-white outline-none transition placeholder:text-gray-600 focus:border-pink-400/50 focus:bg-white/10"
-              />
-            </div>
-
-            {/* Confirm Password */}
-            <div>
-              <label
-                htmlFor="confirmPassword"
-                className="mb-2 block text-sm text-gray-300"
-              >
-                Confirm Password
-              </label>
-
-              <input
-                id="confirmPassword"
-                name="confirmPassword"
-                type="password"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                placeholder="Re-enter your password"
-                required
-                className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-white outline-none transition placeholder:text-gray-600 focus:border-pink-400/50 focus:bg-white/10"
-              />
+              <div className="relative">
+                <input
+                  id="password"
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  value={formData.password}
+                  onChange={handleChange}
+                  placeholder="••••••••"
+                  required
+                  className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm text-white outline-none transition placeholder:text-gray-600 focus:border-pink-400/50 focus:bg-white/10 pr-11"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3.5 top-3.5 text-gray-400 hover:text-pink-300 transition p-0.5"
+                  title={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
+              </div>
             </div>
 
             {/* Submit */}
             <button
               type="submit"
               disabled={loading}
-              className="mt-2 w-full rounded-full bg-white px-6 py-4 font-semibold text-black transition duration-300 hover:scale-[1.02] hover:bg-pink-100 disabled:cursor-not-allowed disabled:opacity-60"
+              className="mt-2 w-full rounded-full bg-pink-100/90 px-6 py-4 font-bold text-black transition duration-300 hover:scale-[1.02] hover:bg-pink-100 disabled:cursor-not-allowed disabled:opacity-60 shadow-lg shadow-pink-500/10"
             >
-              {loading ? "Creating Account..." : "Create Account ✨"}
+              {loading ? "Signing In..." : "Sign In ✨"}
             </button>
           </form>
 
-          {/* Login Link */}
-          <p className="mt-7 text-center text-sm text-gray-500">
-            Already have an account?{" "}
+          {/* Quick Demo Test Buttons */}
+          <div className="mt-6 pt-5 border-t border-white/10 space-y-2">
+            <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block text-center">
+              Quick 1-Click Credentials
+            </span>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => fillDemoAccount("customer@stylesync.ai", "Customer@123")}
+                className="flex-1 py-2 px-3 rounded-xl bg-white/5 border border-white/10 text-xs font-semibold text-gray-300 hover:bg-white/10 hover:text-pink-300 transition"
+              >
+                Customer Demo
+              </button>
+              <button
+                type="button"
+                onClick={() => fillDemoAccount("admin@stylesync.ai", "Admin@123")}
+                className="flex-1 py-2 px-3 rounded-xl bg-white/5 border border-white/10 text-xs font-semibold text-pink-300 hover:bg-white/10 transition"
+              >
+                Admin Demo
+              </button>
+            </div>
+          </div>
+
+          {/* Register Link */}
+          <p className="mt-6 text-center text-sm text-gray-400">
+            Don't have an account?{" "}
             <Link
-              to="/login"
-              className="font-medium text-pink-300 transition hover:text-pink-200"
+              to="/register"
+              className="font-bold text-pink-300 transition hover:text-pink-200"
             >
-              Sign In
+              Create Account
             </Link>
           </p>
         </div>
@@ -227,7 +212,7 @@ export function Register() {
         <div className="mt-6 text-center">
           <Link
             to="/"
-            className="text-sm text-gray-600 transition hover:text-gray-300"
+            className="text-sm text-gray-500 transition hover:text-gray-300"
           >
             ← Back to StyleSync
           </Link>
@@ -237,4 +222,4 @@ export function Register() {
   );
 }
 
-export default Register;
+export default Login;

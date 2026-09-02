@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { Eye, EyeOff } from "lucide-react";
 
-const API_URL = "http://localhost:5000/api";
+const API_URL = "/api";
 
 function Register() {
   const navigate = useNavigate();
@@ -97,7 +98,7 @@ function Register() {
       if (isMounted.current) {
         setError(err.message || "An unexpected error occurred.");
       }
-    } fontFinally: {
+    } finally {
       if (isMounted.current) {
         setLoading(false);
       }
@@ -117,7 +118,7 @@ function Register() {
             <span className="text-pink-300">StyleSync</span>
             <span className="text-white"> AI</span>
           </Link>
-          <p className="mt-3 text-sm text-gray-500">
+          <p className="mt-3 text-sm text-gray-400">
             Create your personal style profile ✨
           </p>
         </div>
@@ -125,18 +126,18 @@ function Register() {
         {/* Form Card */}
         <div className="rounded-[2rem] border border-white/10 bg-white/[0.06] p-7 shadow-2xl backdrop-blur-2xl sm:p-9">
           <div className="mb-8">
-            <p className="mb-2 text-sm uppercase tracking-[0.25em] text-pink-400">
-              Welcome
+            <p className="mb-2 text-sm uppercase tracking-[0.25em] text-pink-400 font-semibold">
+              WELCOME
             </p>
             <h1 className="text-3xl font-bold">Create Account</h1>
-            <p className="mt-2 text-sm text-gray-500">
+            <p className="mt-2 text-sm text-gray-400">
               Start your StyleSync journey.
             </p>
           </div>
 
           {/* Error Message */}
           {error && (
-            <div className="mb-5 rounded-2xl border border-red-400/20 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+            <div className="mb-5 rounded-2xl border border-red-400/30 bg-red-500/20 px-4 py-3 text-sm font-medium text-red-300 text-center">
               ⚠️ {error}
             </div>
           )}
@@ -146,7 +147,7 @@ function Register() {
             <div>
               <label
                 htmlFor="name"
-                className="mb-2 block text-sm text-gray-300"
+                className="mb-2 block text-xs font-semibold text-gray-300"
               >
                 Full Name
               </label>
@@ -156,8 +157,8 @@ function Register() {
                 type="text"
                 value={formData.name}
                 onChange={handleChange}
-                placeholder="Enter your name"
-                className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-white outline-none transition placeholder:text-gray-600 focus:border-pink-400/50 focus:bg-white/10"
+                placeholder="Jane Doe"
+                className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm text-white outline-none transition placeholder:text-gray-600 focus:border-pink-400/50 focus:bg-white/10"
               />
             </div>
 
@@ -165,7 +166,7 @@ function Register() {
             <div>
               <label
                 htmlFor="email"
-                className="mb-2 block text-sm text-gray-300"
+                className="mb-2 block text-xs font-semibold text-gray-300"
               >
                 Email Address
               </label>
@@ -176,7 +177,7 @@ function Register() {
                 value={formData.email}
                 onChange={handleChange}
                 placeholder="you@example.com"
-                className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-white outline-none transition placeholder:text-gray-600 focus:border-pink-400/50 focus:bg-white/10"
+                className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm text-white outline-none transition placeholder:text-gray-600 focus:border-pink-400/50 focus:bg-white/10"
               />
             </div>
 
@@ -184,7 +185,7 @@ function Register() {
             <div>
               <label
                 htmlFor="password"
-                className="mb-2 block text-sm text-gray-300"
+                className="mb-2 block text-xs font-semibold text-gray-300"
               >
                 Password
               </label>
@@ -196,14 +197,15 @@ function Register() {
                   value={formData.password}
                   onChange={handleChange}
                   placeholder="At least 6 characters"
-                  className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 pr-12 text-white outline-none transition placeholder:text-gray-600 focus:border-pink-400/50 focus:bg-white/10"
+                  className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 pr-11 text-sm text-white outline-none transition placeholder:text-gray-600 focus:border-pink-400/50 focus:bg-white/10"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-gray-400 hover:text-white"
+                  className="absolute right-3.5 top-3.5 text-gray-400 hover:text-pink-300 transition p-0.5"
+                  title={showPassword ? "Hide password" : "Show password"}
                 >
-                  {showPassword ? "Hide" : "Show"}
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
             </div>
@@ -212,39 +214,49 @@ function Register() {
             <div>
               <label
                 htmlFor="confirmPassword"
-                className="mb-2 block text-sm text-gray-300"
+                className="mb-2 block text-xs font-semibold text-gray-300"
               >
                 Confirm Password
               </label>
-              <input
-                id="confirmPassword"
-                name="confirmPassword"
-                type={showPassword ? "text" : "password"}
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                placeholder="Re-enter your password"
-                className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-white outline-none transition placeholder:text-gray-600 focus:border-pink-400/50 focus:bg-white/10"
-              />
+              <div className="relative">
+                <input
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type={showPassword ? "text" : "password"}
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  placeholder="Re-enter your password"
+                  className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 pr-11 text-sm text-white outline-none transition placeholder:text-gray-600 focus:border-pink-400/50 focus:bg-white/10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3.5 top-3.5 text-gray-400 hover:text-pink-300 transition p-0.5"
+                  title={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
+              </div>
             </div>
 
             {/* Submit Button */}
             <button
               type="submit"
               disabled={loading}
-              className="w-full rounded-full bg-white px-6 py-4 font-semibold text-black transition duration-300 hover:scale-[1.02] hover:bg-pink-100 disabled:cursor-not-allowed disabled:opacity-60"
+              className="w-full rounded-full bg-pink-100/90 px-6 py-4 font-bold text-black transition duration-300 hover:scale-[1.02] hover:bg-pink-100 disabled:cursor-not-allowed disabled:opacity-60 shadow-lg shadow-pink-500/10"
             >
               {loading ? "Creating Account..." : "Create Account ✨"}
             </button>
           </form>
 
           {/* Login Link */}
-          <p className="mt-7 text-center text-sm text-gray-500">
+          <p className="mt-7 text-center text-sm text-gray-400">
             Already have an account?{" "}
             <Link
               to="/login"
-              className="font-medium text-pink-300 transition hover:text-pink-200"
+              className="font-bold text-pink-300 transition hover:text-pink-200"
             >
-              Sign in
+              Sign In
             </Link>
           </p>
         </div>
@@ -253,7 +265,7 @@ function Register() {
         <div className="mt-6 text-center">
           <Link
             to="/"
-            className="text-sm text-gray-600 transition hover:text-gray-300"
+            className="text-sm text-gray-500 transition hover:text-gray-300"
           >
             ← Back to StyleSync
           </Link>
