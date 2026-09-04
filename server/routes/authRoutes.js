@@ -6,6 +6,10 @@ const {
   logout,
   profile,
   updateProfile,
+  getAddresses,
+  addAddress,
+  updateAddress,
+  deleteAddress,
   checkUser,
   checkAdmin,
 } = require("../controllers/authController");
@@ -18,30 +22,41 @@ const {
 const router = express.Router();
 
 // =========================
-// PUBLIC ROUTES
+// AUTH
 // =========================
 
 router.post("/signup", signup);
 
 router.post("/signin", signin);
 
-// =========================
-// PROTECTED ROUTES
-// =========================
-
-// Logout
 router.post("/logout", protect, logout);
 
-// Get profile
+// =========================
+// PROFILE
+// =========================
+
 router.get("/profile", protect, profile);
 
-// Update profile
 router.put("/profile", protect, updateProfile);
 
-// Check user
+// =========================
+// SAVED ADDRESSES
+// =========================
+
+router.get("/addresses", protect, getAddresses);
+
+router.post("/addresses", protect, addAddress);
+
+router.put("/addresses/:addressId", protect, updateAddress);
+
+router.delete("/addresses/:addressId", protect, deleteAddress);
+
+// =========================
+// CHECK USER / ADMIN
+// =========================
+
 router.get("/check-user", protect, checkUser);
 
-// Check admin
 router.get(
   "/check-admin",
   protect,

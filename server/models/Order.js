@@ -1,5 +1,66 @@
 const mongoose = require("mongoose");
 
+// =========================
+// DELIVERY ADDRESS
+// =========================
+const deliveryAddressSchema = new mongoose.Schema(
+  {
+    label: {
+      type: String,
+      enum: ["Home", "Work", "Other"],
+      default: "Home",
+    },
+
+    fullName: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    phone: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    house: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    street: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    city: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    state: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    pincode: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+  },
+  {
+    _id: false,
+  }
+);
+
+// =========================
+// ORDER ITEM
+// =========================
 const orderItemSchema = new mongoose.Schema(
   {
     product: {
@@ -40,6 +101,9 @@ const orderItemSchema = new mongoose.Schema(
   }
 );
 
+// =========================
+// ORDER
+// =========================
 const orderSchema = new mongoose.Schema(
   {
     user: {
@@ -61,6 +125,12 @@ const orderSchema = new mongoose.Schema(
         validator: (items) => items.length > 0,
         message: "Order must contain at least one item",
       },
+    },
+
+    // Snapshot of address used for this order
+    deliveryAddress: {
+      type: deliveryAddressSchema,
+      required: true,
     },
 
     subtotal: {

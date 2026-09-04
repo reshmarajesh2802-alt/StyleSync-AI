@@ -6,7 +6,7 @@ const Product = require("../models/Product");
 // =========================
 const createOrder = async (req, res) => {
   try {
-    const { items } = req.body;
+    const { items, deliveryAddress } = req.body;
 
     // =========================
     // VALIDATE ITEMS
@@ -14,6 +14,52 @@ const createOrder = async (req, res) => {
     if (!items || !Array.isArray(items) || items.length === 0) {
       return res.status(400).json({
         message: "Order must contain at least one item",
+      });
+    }
+
+    // =========================
+    // VALIDATE DELIVERY ADDRESS
+    // =========================
+    if (!deliveryAddress) {
+      return res.status(400).json({
+        message: "Please select a delivery address",
+      });
+    }
+
+    const {
+      label,
+      fullName,
+      phone,
+      house,
+      street,
+      city,
+      state,
+      pincode,
+    } = deliveryAddress;
+
+    if (
+      !fullName ||
+      !phone ||
+      !house ||
+      !street ||
+      !city ||
+      !state ||
+      !pincode
+    ) {
+      return res.status(400).json({
+        message: "Please provide a complete delivery address",
+      });
+    }
+
+    if (!/^\d{10}$/.test(String(phone))) {
+      return res.status(400).json({
+        message: "Delivery address phone number must contain 10 digits",
+      });
+    }
+
+    if (!/^\d{6}$/.test(String(pincode))) {
+      return res.status(400).json({
+        message: "Delivery address pincode must contain 6 digits",
       });
     }
 
@@ -115,6 +161,18 @@ const createOrder = async (req, res) => {
       user: req.user.id,
       orderId,
       items: orderItems,
+
+      deliveryAddress: {
+        label: label || "Home",
+        fullName,
+        phone,
+        house,
+        street,
+        city,
+        state,
+        pincode,
+      },
+
       subtotal,
       discount,
       delivery,

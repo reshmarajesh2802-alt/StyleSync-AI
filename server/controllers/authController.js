@@ -2,9 +2,7 @@ const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-// =========================
-// GENERATE JWT
-// =========================
+// Generate JWT
 const generateToken = (user) => {
   return jwt.sign(
     {
@@ -19,32 +17,28 @@ const generateToken = (user) => {
 };
 
 // =========================
-// USER SIGNUP
+// SIGN UP
 // =========================
 const signup = async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
-    // Check required fields
     if (!name || !email || !password) {
       return res.status(400).json({
         message: "Name, email and password are required",
       });
     }
 
-    // Check existing user
     const existingUser = await User.findOne({ email });
 
     if (existingUser) {
-      return res.status(409).json({
+      return res.status(400).json({
         message: "User already exists",
       });
     }
 
-    // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create user
     const user = await User.create({
       name,
       email,
@@ -52,33 +46,32 @@ const signup = async (req, res) => {
       role: "user",
     });
 
-    // Generate token
     const token = generateToken(user);
 
     res.status(201).json({
-      message: "User registered successfully",
+      success: true,
       token,
       user: {
         id: user._id,
         name: user.name,
         email: user.email,
         role: user.role,
-        phone: user.phone || "",
-        address: user.address || {},
+        phone: user.phone,
+        address: user.address,
+        addresses: user.addresses,
       },
     });
   } catch (error) {
-    console.error("Signup error:", error);
+    console.error("SIGNUP ERROR:", error);
 
     res.status(500).json({
-      message: "Signup failed",
-      error: error.message,
+      message: error.message,
     });
   }
 };
 
 // =========================
-// SIGNIN
+// SIGN IN
 // =========================
 const signin = async (req, res) => {
   try {
@@ -90,7 +83,6 @@ const signin = async (req, res) => {
       });
     }
 
-    // Find user
     const user = await User.findOne({ email });
 
     if (!user) {
@@ -99,39 +91,37 @@ const signin = async (req, res) => {
       });
     }
 
-    // Compare password
-    const isPasswordValid = await bcrypt.compare(
+    const isPasswordCorrect = await bcrypt.compare(
       password,
       user.password
     );
 
-    if (!isPasswordValid) {
+    if (!isPasswordCorrect) {
       return res.status(401).json({
         message: "Invalid email or password",
       });
     }
 
-    // Generate token
     const token = generateToken(user);
 
     res.status(200).json({
-      message: "Login successful",
+      success: true,
       token,
       user: {
         id: user._id,
         name: user.name,
         email: user.email,
         role: user.role,
-        phone: user.phone || "",
-        address: user.address || {},
+        phone: user.phone,
+        address: user.address,
+        addresses: user.addresses,
       },
     });
   } catch (error) {
-    console.error("Signin error:", error);
+    console.error("SIGNIN ERROR:", error);
 
     res.status(500).json({
-      message: "Signin failed",
-      error: error.message,
+      message: error.message,
     });
   }
 };
@@ -141,7 +131,8 @@ const signin = async (req, res) => {
 // =========================
 const logout = async (req, res) => {
   res.status(200).json({
-    message: "Logout successful",
+    success: true,
+    message: "Logged out successfully",
   });
 };
 
@@ -159,14 +150,14 @@ const profile = async (req, res) => {
     }
 
     res.status(200).json({
+      success: true,
       user,
     });
   } catch (error) {
-    console.error("Profile error:", error);
+    console.error("PROFILE ERROR:", error);
 
     res.status(500).json({
-      message: "Failed to fetch profile",
-      error: error.message,
+      message: error.message,
     });
   }
 };
@@ -176,11 +167,7 @@ const profile = async (req, res) => {
 // =========================
 const updateProfile = async (req, res) => {
   try {
-    const {
-      name,
-      phone,
-      address,
-    } = req.body;
+    const { name, phone, address } = req.body;
 
     const user = await User.findById(req.user.id);
 
@@ -190,29 +177,15 @@ const updateProfile = async (req, res) => {
       });
     }
 
-    // =========================
-    // UPDATE NAME
-    // =========================
     if (name !== undefined) {
-      if (!name.trim()) {
-        return res.status(400).json({
-          message: "Name cannot be empty",
-        });
-      }
-
-      user.name = name.trim();
+      user.name = name;
     }
 
-    // =========================
-    // UPDATE PHONE
-    // =========================
     if (phone !== undefined) {
-      user.phone = phone.trim();
+      user.phone = phone;
     }
 
-    // =========================
-    // UPDATE ADDRESS
-    // =========================
+    // Keep existing single-address system working
     if (address !== undefined) {
       user.address = {
         ...(user.address?.toObject
@@ -224,21 +197,276 @@ const updateProfile = async (req, res) => {
 
     await user.save();
 
-    // Get updated user without password
-    const updatedUser = await User.findById(
-      user._id
-    ).select("-password");
+    const updatedUser = user.toObject();
+    delete updatedUser.password;
 
     res.status(200).json({
+      success: true,
       message: "Profile updated successfully",
       user: updatedUser,
     });
   } catch (error) {
-    console.error("Update profile error:", error);
+    console.error("UPDATE PROFILE ERROR:", error);
 
     res.status(500).json({
-      message: "Failed to update profile",
-      error: error.message,
+      message: error.message,
+    });
+  }
+};
+
+// =====================================================
+// SAVED ADDRESSES
+// =====================================================
+
+// =========================
+// GET ALL ADDRESSES
+// =========================
+const getAddresses = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select("addresses");
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      addresses: user.addresses || [],
+    });
+  } catch (error) {
+    console.error("GET ADDRESSES ERROR:", error);
+
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+// =========================
+// ADD NEW ADDRESS
+// =========================
+const addAddress = async (req, res) => {
+  try {
+    const {
+      label,
+      fullName,
+      phone,
+      house,
+      street,
+      city,
+      state,
+      pincode,
+      isDefault,
+    } = req.body;
+
+    if (
+      !fullName ||
+      !phone ||
+      !house ||
+      !street ||
+      !city ||
+      !state ||
+      !pincode
+    ) {
+      return res.status(400).json({
+        message: "Please fill all required address fields",
+      });
+    }
+
+    if (!/^\d{10}$/.test(phone)) {
+      return res.status(400).json({
+        message: "Phone number must contain 10 digits",
+      });
+    }
+
+    if (!/^\d{6}$/.test(pincode)) {
+      return res.status(400).json({
+        message: "Pincode must contain 6 digits",
+      });
+    }
+
+    const user = await User.findById(req.user.id);
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    // If this address is default, remove default from others
+    if (isDefault === true) {
+      user.addresses.forEach((address) => {
+        address.isDefault = false;
+      });
+    }
+
+    // First address automatically becomes default
+    const shouldBeDefault =
+      user.addresses.length === 0 ? true : isDefault === true;
+
+    user.addresses.push({
+      label: label || "Home",
+      fullName,
+      phone,
+      house,
+      street,
+      city,
+      state,
+      pincode,
+      isDefault: shouldBeDefault,
+    });
+
+    await user.save();
+
+    const newAddress =
+      user.addresses[user.addresses.length - 1];
+
+    res.status(201).json({
+      success: true,
+      message: "Address added successfully",
+      address: newAddress,
+      addresses: user.addresses,
+    });
+  } catch (error) {
+    console.error("ADD ADDRESS ERROR:", error);
+
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+// =========================
+// UPDATE ADDRESS
+// =========================
+const updateAddress = async (req, res) => {
+  try {
+    const { addressId } = req.params;
+
+    const {
+      label,
+      fullName,
+      phone,
+      house,
+      street,
+      city,
+      state,
+      pincode,
+      isDefault,
+    } = req.body;
+
+    const user = await User.findById(req.user.id);
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    const address = user.addresses.id(addressId);
+
+    if (!address) {
+      return res.status(404).json({
+        message: "Address not found",
+      });
+    }
+
+    if (phone !== undefined && !/^\d{10}$/.test(phone)) {
+      return res.status(400).json({
+        message: "Phone number must contain 10 digits",
+      });
+    }
+
+    if (pincode !== undefined && !/^\d{6}$/.test(pincode)) {
+      return res.status(400).json({
+        message: "Pincode must contain 6 digits",
+      });
+    }
+
+    // If setting this address as default,
+    // make all other addresses non-default
+    if (isDefault === true) {
+      user.addresses.forEach((item) => {
+        item.isDefault = false;
+      });
+    }
+
+    if (label !== undefined) address.label = label;
+    if (fullName !== undefined) address.fullName = fullName;
+    if (phone !== undefined) address.phone = phone;
+    if (house !== undefined) address.house = house;
+    if (street !== undefined) address.street = street;
+    if (city !== undefined) address.city = city;
+    if (state !== undefined) address.state = state;
+    if (pincode !== undefined) address.pincode = pincode;
+    if (isDefault !== undefined) {
+      address.isDefault = isDefault;
+    }
+
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Address updated successfully",
+      address,
+      addresses: user.addresses,
+    });
+  } catch (error) {
+    console.error("UPDATE ADDRESS ERROR:", error);
+
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+// =========================
+// DELETE ADDRESS
+// =========================
+const deleteAddress = async (req, res) => {
+  try {
+    const { addressId } = req.params;
+
+    const user = await User.findById(req.user.id);
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    const address = user.addresses.id(addressId);
+
+    if (!address) {
+      return res.status(404).json({
+        message: "Address not found",
+      });
+    }
+
+    const wasDefault = address.isDefault;
+
+    address.deleteOne();
+
+    // If default address was deleted,
+    // make the first remaining address default
+    if (wasDefault && user.addresses.length > 0) {
+      user.addresses[0].isDefault = true;
+    }
+
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Address deleted successfully",
+      addresses: user.addresses,
+    });
+  } catch (error) {
+    console.error("DELETE ADDRESS ERROR:", error);
+
+    res.status(500).json({
+      message: error.message,
     });
   }
 };
@@ -247,10 +475,24 @@ const updateProfile = async (req, res) => {
 // CHECK USER
 // =========================
 const checkUser = async (req, res) => {
-  res.status(200).json({
-    authenticated: true,
-    user: req.user,
-  });
+  try {
+    const user = await User.findById(req.user.id).select("-password");
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      user,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
 };
 
 // =========================
@@ -258,22 +500,22 @@ const checkUser = async (req, res) => {
 // =========================
 const checkAdmin = async (req, res) => {
   res.status(200).json({
-    authenticated: true,
-    authorized: true,
-    message: "Admin access granted",
+    success: true,
+    message: "Admin access verified",
     user: req.user,
   });
 };
 
-// =========================
-// EXPORT
-// =========================
 module.exports = {
   signup,
   signin,
   logout,
   profile,
   updateProfile,
+  getAddresses,
+  addAddress,
+  updateAddress,
+  deleteAddress,
   checkUser,
   checkAdmin,
 };

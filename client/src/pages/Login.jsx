@@ -23,13 +23,6 @@ export function Login() {
     });
   };
 
-  const fillDemoAccount = (demoEmail, demoPass) => {
-    setFormData({
-      email: demoEmail,
-      password: demoPass,
-    });
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -55,11 +48,7 @@ export function Login() {
         if (data.user) {
           localStorage.setItem("user", JSON.stringify(data.user));
         }
-        if (data.user && data.user.role === 'admin') {
-          navigate("/admin");
-        } else {
-          navigate("/dashboard");
-        }
+        navigate("/dashboard");
       } else {
         setError("Sign in failed. No token received.");
       }
@@ -99,7 +88,7 @@ export function Login() {
             <h1 className="text-3xl font-bold">Sign In</h1>
 
             <p className="mt-2 text-sm text-gray-400">
-              Enter your details to access your dashboard.
+              Enter your details to access your personalized style experience.
             </p>
           </div>
 
@@ -173,28 +162,7 @@ export function Login() {
             </button>
           </form>
 
-          {/* Quick Demo Test Buttons */}
-          <div className="mt-6 pt-5 border-t border-white/10 space-y-2">
-            <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block text-center">
-              Quick 1-Click Credentials
-            </span>
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={() => fillDemoAccount("customer@stylesync.ai", "Customer@123")}
-                className="flex-1 py-2 px-3 rounded-xl bg-white/5 border border-white/10 text-xs font-semibold text-gray-300 hover:bg-white/10 hover:text-pink-300 transition"
-              >
-                Customer Demo
-              </button>
-              <button
-                type="button"
-                onClick={() => fillDemoAccount("admin@stylesync.ai", "Admin@123")}
-                className="flex-1 py-2 px-3 rounded-xl bg-white/5 border border-white/10 text-xs font-semibold text-pink-300 hover:bg-white/10 transition"
-              >
-                Admin Demo
-              </button>
-            </div>
-          </div>
+          
 
           {/* Register Link */}
           <p className="mt-6 text-center text-sm text-gray-400">
