@@ -9,8 +9,8 @@ import Collections from "./pages/Collections";
 import Profile from "./pages/Profile";
 import Cart from "./pages/Cart";
 import Orders from "./pages/Orders";
-
 import ProtectedRoute from "./components/ProtectedRoute";
+import AdminDashboard from "./pages/AdminDashboard";
 
 function App() {
   return (
@@ -32,6 +32,8 @@ function App() {
           <Route path="/cart" element={<Cart />} />
           <Route path="/orders" element={<Orders />} />
 
+          {/* Admin Route */}
+          <Route path="/admin" element={<AdminDashboard />} />
         </Route>
 
       </Routes>

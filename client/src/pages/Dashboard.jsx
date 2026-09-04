@@ -51,7 +51,10 @@ export function Dashboard() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/products");
+        const response = await fetch(
+          "http://localhost:5000/api/products"
+        );
+
         const data = await response.json();
 
         if (!response.ok) {
@@ -81,6 +84,15 @@ export function Dashboard() {
     "Jackets",
     "Footwear",
     "Accessories",
+
+     // Beauty
+  "Lipsticks",
+  "Foundation",
+  "Concealer",
+  "Blush",
+  "Eye Makeup",
+  "Makeup Tools",
+  "Skincare",
   ];
 
   // =========================
@@ -88,12 +100,15 @@ export function Dashboard() {
   // =========================
   const filteredProducts = useMemo(() => {
     return products.filter((product) => {
-      const matchesSearch = product.name
+      const productName = product.name || "";
+
+      const matchesSearch = productName
         .toLowerCase()
         .includes(search.toLowerCase());
 
       const matchesCategory =
-        selectedCategory === "All" || product.category === selectedCategory;
+        selectedCategory === "All" ||
+        product.category === selectedCategory;
 
       return matchesSearch && matchesCategory;
     });
@@ -103,7 +118,9 @@ export function Dashboard() {
   // ADD TO CART
   // =========================
   const handleAddToCart = (product) => {
-    const existingProduct = cart.find((item) => item._id === product._id);
+    const existingProduct = cart.find(
+      (item) => item._id === product._id
+    );
 
     let updatedCart;
 
@@ -114,16 +131,20 @@ export function Dashboard() {
           : item
       );
     } else {
-      updatedCart = [...cart, { ...product, quantity: 1 }];
+      updatedCart = [
+        ...cart,
+        {
+          ...product,
+          quantity: 1,
+        },
+      ];
     }
 
     setCart(updatedCart);
     localStorage.setItem("cart", JSON.stringify(updatedCart));
 
-    // Show success message
     setCartMessage(`${product.name} added to cart ✓`);
 
-    // Hide message after 2 seconds
     setTimeout(() => {
       setCartMessage("");
     }, 2000);
@@ -133,18 +154,25 @@ export function Dashboard() {
   // WISHLIST
   // =========================
   const handleWishlist = (product) => {
-    const exists = wishlist.some((item) => item._id === product._id);
+    const exists = wishlist.some(
+      (item) => item._id === product._id
+    );
 
     let updatedWishlist;
 
     if (exists) {
-      updatedWishlist = wishlist.filter((item) => item._id !== product._id);
+      updatedWishlist = wishlist.filter(
+        (item) => item._id !== product._id
+      );
     } else {
       updatedWishlist = [...wishlist, product];
     }
 
     setWishlist(updatedWishlist);
-    localStorage.setItem("wishlist", JSON.stringify(updatedWishlist));
+    localStorage.setItem(
+      "wishlist",
+      JSON.stringify(updatedWishlist)
+    );
   };
 
   // =========================
@@ -160,7 +188,10 @@ export function Dashboard() {
   // =========================
   // CART ITEM COUNT
   // =========================
-  const cartCount = cart.reduce((total, item) => total + item.quantity, 0);
+  const cartCount = cart.reduce(
+    (total, item) => total + (item.quantity || 0),
+    0
+  );
 
   return (
     <div className="min-h-screen bg-black px-6 py-10 text-white">
@@ -181,8 +212,11 @@ export function Dashboard() {
                 <p className="text-sm font-semibold text-white">
                   Added to Cart
                 </p>
+
                 <p className="mt-0.5 max-w-xs text-xs text-gray-400">
-                  {cartMessage.replace(" added to cart ✓", "").trim()}
+                  {cartMessage
+                    .replace(" added to cart ✓", "")
+                    .trim()}
                 </p>
               </div>
 
@@ -193,6 +227,7 @@ export function Dashboard() {
 
         {/* Navigation Bar */}
         <nav className="mb-14 flex flex-col gap-5 border-b border-white/10 pb-6 sm:flex-row sm:items-center sm:justify-between">
+          {/* Logo */}
           <button
             type="button"
             onClick={() => navigate("/dashboard")}
@@ -201,6 +236,7 @@ export function Dashboard() {
             <p className="text-lg font-bold tracking-wide">
               Style<span className="text-pink-400">Sync</span>
             </p>
+
             <p className="text-xs uppercase tracking-[0.25em] text-gray-500">
               AI Fashion
             </p>
@@ -211,9 +247,10 @@ export function Dashboard() {
             <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">
               🔎
             </span>
+
             <input
               type="text"
-              placeholder="Search dresses, tops, jackets..."
+              placeholder="Search dresses, makeup, skincare..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full rounded-full border border-white/10 bg-white/5 py-3 pl-11 pr-5 text-sm text-white outline-none transition placeholder:text-gray-600 focus:border-pink-400/40 focus:bg-white/10"
@@ -240,6 +277,7 @@ export function Dashboard() {
               aria-label="Shopping Cart"
             >
               🛒
+
               {cartCount > 0 && (
                 <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-pink-500 px-1 text-[10px] font-bold text-white">
                   {cartCount}
@@ -257,12 +295,15 @@ export function Dashboard() {
 
           <h1 className="mt-3 max-w-3xl text-4xl font-bold leading-tight sm:text-6xl">
             Your style.
-            <span className="text-pink-300"> Your wardrobe.</span>
+            <span className="text-pink-300">
+              {" "}
+              Your wardrobe.
+            </span>
           </h1>
 
           <p className="mt-5 max-w-2xl text-lg leading-8 text-gray-400">
-            Discover fashion curated for you, explore new trends, and let AI
-            help you find your perfect look.
+            Discover fashion curated for you, explore new trends,
+            and let AI help you find your perfect look.
           </p>
 
           <div className="mt-7 flex flex-wrap gap-4">
@@ -287,7 +328,9 @@ export function Dashboard() {
         {/* Categories Section */}
         <section className="mb-14">
           <div className="mb-6 flex items-center justify-between">
-            <h2 className="text-2xl font-semibold">Shop by Category</h2>
+            <h2 className="text-2xl font-semibold">
+              Shop by Category
+            </h2>
           </div>
 
           <div className="flex gap-3 overflow-x-auto pb-2">
@@ -315,6 +358,7 @@ export function Dashboard() {
               <p className="text-sm uppercase tracking-[0.25em] text-gray-500">
                 Discover
               </p>
+
               <h2 className="mt-2 text-3xl font-semibold">
                 Recommended For You
               </h2>
@@ -328,7 +372,7 @@ export function Dashboard() {
           {/* Loading State */}
           {loading && (
             <div className="py-20 text-center text-gray-500">
-              Loading fashion collection...
+              Loading fashion & beauty collection...
             </div>
           )}
 
@@ -340,94 +384,112 @@ export function Dashboard() {
           )}
 
           {/* Empty State */}
-          {!loading && !error && filteredProducts.length === 0 && (
-            <div className="rounded-3xl border border-white/10 bg-white/5 p-12 text-center">
-              <p className="text-4xl">🔎</p>
-              <h3 className="mt-4 text-xl font-semibold">No products found</h3>
-              <p className="mt-2 text-gray-500">
-                Try another search or category.
-              </p>
-            </div>
-          )}
+          {!loading &&
+            !error &&
+            filteredProducts.length === 0 && (
+              <div className="rounded-3xl border border-white/10 bg-white/5 p-12 text-center">
+                <p className="text-4xl">🔎</p>
+
+                <h3 className="mt-4 text-xl font-semibold">
+                  No products found
+                </h3>
+
+                <p className="mt-2 text-gray-500">
+                  Try another search or category.
+                </p>
+              </div>
+            )}
 
           {/* Product Grid */}
-          {!loading && !error && filteredProducts.length > 0 && (
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-              {filteredProducts.map((product) => {
-                const isWishlisted = wishlist.some(
-                  (item) => item._id === product._id
-                );
+          {!loading &&
+            !error &&
+            filteredProducts.length > 0 && (
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                {filteredProducts.map((product) => {
+                  const isWishlisted = wishlist.some(
+                    (item) => item._id === product._id
+                  );
 
-                return (
-                  <div
-                    key={product._id}
-                    className="group overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl transition duration-300 hover:-translate-y-2 hover:border-pink-400/30 hover:bg-white/10"
-                  >
-                    {/* Product Image */}
-                    <div className="relative aspect-[4/5] overflow-hidden bg-white/5">
-                      <img
-                        src={product.image}
-                        alt={product.name}
-                        className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-                      />
+                  return (
+                    <div
+                      key={product._id}
+                      className="group overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl transition duration-300 hover:-translate-y-2 hover:border-pink-400/30 hover:bg-white/10"
+                    >
+                      {/* Product Image */}
+                      <div className="relative aspect-[4/5] overflow-hidden bg-white/5">
+                        <img
+                          src={product.image}
+                          alt={product.name}
+                          className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                        />
 
-                      {/* Wishlist Button */}
-                      <button
-                        type="button"
-                        onClick={() => handleWishlist(product)}
-                        className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-black/60 text-xl backdrop-blur-md transition hover:scale-110"
-                        title="Wishlist"
-                        aria-label="Add to Wishlist"
-                      >
-                        {isWishlisted ? "❤️" : "♡"}
-                      </button>
-
-                      {/* Featured Badge */}
-                      {product.isFeatured && (
-                        <span className="absolute left-4 top-4 rounded-full bg-black/70 px-3 py-1.5 text-[10px] font-medium uppercase tracking-wider text-pink-300 backdrop-blur-md">
-                          Featured
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Product Information */}
-                    <div className="p-5">
-                      <p className="text-xs uppercase tracking-wider text-gray-500">
-                        {product.category}
-                      </p>
-
-                      <h3 className="mt-2 line-clamp-1 text-lg font-semibold">
-                        {product.name}
-                      </h3>
-
-                      {/* Rating */}
-                      <div className="mt-2 flex items-center gap-2">
-                        <span className="text-sm text-yellow-400">★</span>
-                        <span className="text-sm text-gray-400">
-                          {product.rating}
-                        </span>
-                      </div>
-
-                      {/* Price & Add to Cart */}
-                      <div className="mt-4 flex items-center justify-between">
-                        <p className="text-lg font-semibold">
-                          ₹{product.price.toLocaleString("en-IN")}
-                        </p>
-
+                        {/* Wishlist Button */}
                         <button
                           type="button"
-                          onClick={() => handleAddToCart(product)}
-                          className="rounded-full bg-white px-4 py-2 text-xs font-semibold text-black transition hover:scale-105 hover:bg-pink-100"
+                          onClick={() =>
+                            handleWishlist(product)
+                          }
+                          className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-black/60 text-xl backdrop-blur-md transition hover:scale-110"
+                          title="Wishlist"
+                          aria-label="Add to Wishlist"
                         >
-                          Add to Cart
+                          {isWishlisted ? "❤️" : "♡"}
                         </button>
+
+                        {/* Featured Badge */}
+                        {product.isFeatured && (
+                          <span className="absolute left-4 top-4 rounded-full bg-black/70 px-3 py-1.5 text-[10px] font-medium uppercase tracking-wider text-pink-300 backdrop-blur-md">
+                            Featured
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Product Information */}
+                      <div className="p-5">
+                        <p className="text-xs uppercase tracking-wider text-gray-500">
+                          {product.category}
+                        </p>
+
+                        <h3 className="mt-2 line-clamp-1 text-lg font-semibold">
+                          {product.name}
+                        </h3>
+
+                        {/* Rating */}
+                        <div className="mt-2 flex items-center gap-2">
+                          <span className="text-sm text-yellow-400">
+                            ★
+                          </span>
+
+                          <span className="text-sm text-gray-400">
+                            {product.rating}
+                          </span>
+                        </div>
+
+                        {/* Price & Add to Cart */}
+                        <div className="mt-4 flex items-center justify-between">
+                          <p className="text-lg font-semibold">
+                            ₹
+                            {Number(product.price || 0).toLocaleString(
+                              "en-IN"
+                            )}
+                          </p>
+
+                          <button
+                            type="button"
+                            onClick={() =>
+                              handleAddToCart(product)
+                            }
+                            className="rounded-full bg-white px-4 py-2 text-xs font-semibold text-black transition hover:scale-105 hover:bg-pink-100"
+                          >
+                            Add to Cart
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
+                  );
+                })}
+              </div>
+            )}
         </section>
 
         {/* AI Stylist Feature Banner */}
@@ -442,8 +504,9 @@ export function Dashboard() {
             </h2>
 
             <p className="mt-4 leading-7 text-gray-400">
-              Tell our AI stylist about your occasion, mood, and preferences.
-              We'll help you discover a look that feels uniquely yours.
+              Tell our AI stylist about your occasion, mood, and
+              preferences. We'll help you discover a look that feels
+              uniquely yours.
             </p>
 
             <button
@@ -464,7 +527,11 @@ export function Dashboard() {
             className="rounded-3xl border border-white/10 bg-white/5 p-6 text-left transition hover:border-purple-400/30 hover:bg-white/10"
           >
             <span className="text-3xl">👗</span>
-            <h3 className="mt-4 text-xl font-semibold">Collections</h3>
+
+            <h3 className="mt-4 text-xl font-semibold">
+              Collections
+            </h3>
+
             <p className="mt-2 text-sm leading-6 text-gray-500">
               Explore Elegant, Casual, Streetwear and Party looks.
             </p>
@@ -476,9 +543,14 @@ export function Dashboard() {
             className="rounded-3xl border border-white/10 bg-white/5 p-6 text-left transition hover:border-pink-400/30 hover:bg-white/10"
           >
             <span className="text-3xl">💗</span>
-            <h3 className="mt-4 text-xl font-semibold">My Style</h3>
+
+            <h3 className="mt-4 text-xl font-semibold">
+              My Style
+            </h3>
+
             <p className="mt-2 text-sm leading-6 text-gray-500">
-              Manage your profile and personalize your StyleSync experience.
+              Manage your profile and personalize your StyleSync
+              experience.
             </p>
           </button>
 
@@ -488,7 +560,11 @@ export function Dashboard() {
             className="rounded-3xl border border-white/10 bg-white/5 p-6 text-left transition hover:border-red-400/30 hover:bg-red-500/5"
           >
             <span className="text-3xl">🚪</span>
-            <h3 className="mt-4 text-xl font-semibold">Logout</h3>
+
+            <h3 className="mt-4 text-xl font-semibold">
+              Logout
+            </h3>
+
             <p className="mt-2 text-sm leading-6 text-gray-500">
               Sign out of your StyleSync account securely.
             </p>
@@ -497,7 +573,7 @@ export function Dashboard() {
 
         {/* Footer */}
         <div className="mt-16 border-t border-white/10 py-8 text-center text-sm text-gray-600">
-          StyleSync AI · Your personal fashion space ✨
+          StyleSync AI · Your personal fashion & beauty space ✨
         </div>
       </div>
     </div>
