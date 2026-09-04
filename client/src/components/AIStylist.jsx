@@ -25,6 +25,34 @@ function AIStylist() {
     skincare: "Hydrating skincare routine",
   });
 
+  // Converts backend product objects/arrays into text that React can render
+  const formatRecommendation = (value, fallback) => {
+    if (!value) return fallback;
+
+    if (Array.isArray(value)) {
+      if (value.length === 0) return fallback;
+
+      return value
+        .map((item) => {
+          if (typeof item === "string") return item;
+
+          if (item && typeof item === "object") {
+            return item.name || item.description || "Recommended product";
+          }
+
+          return "";
+        })
+        .filter(Boolean)
+        .join(" • ");
+    }
+
+    if (typeof value === "object") {
+      return value.name || value.description || fallback;
+    }
+
+    return value;
+  };
+
   const handleSend = async () => {
     if (!prompt.trim() || isGenerating) return;
 
@@ -65,10 +93,6 @@ function AIStylist() {
         throw new Error(data.message || "Unable to generate recommendation");
       }
 
-      /*
-       * Supports different response structures from the backend.
-       * If your backend returns recommendation directly, it is used.
-       */
       const recommendation =
         data.recommendation ||
         data.result ||
@@ -109,21 +133,24 @@ function AIStylist() {
           recommendation.message ||
           "A personalized look created based on your preferences.",
 
-        fashion:
+        fashion: formatRecommendation(
           recommendation.fashion ||
-          recommendation.outfit ||
-          recommendation.fashionRecommendation ||
-          "Curated fashion pieces based on your request.",
+            recommendation.outfit ||
+            recommendation.fashionRecommendation,
+          "Curated fashion pieces based on your request."
+        ),
 
-        makeup:
+        makeup: formatRecommendation(
           recommendation.makeup ||
-          recommendation.makeupRecommendation ||
-          "Makeup recommendations selected to complement your look.",
+            recommendation.makeupRecommendation,
+          "Makeup recommendations selected to complement your look."
+        ),
 
-        skincare:
+        skincare: formatRecommendation(
           recommendation.skincare ||
-          recommendation.skincareRecommendation ||
-          "Skincare suggestions selected to complete your beauty routine.",
+            recommendation.skincareRecommendation,
+          "Skincare suggestions selected to complete your beauty routine."
+        ),
       };
 
       setCurrentLook(newLook);
@@ -140,10 +167,6 @@ function AIStylist() {
     } catch (error) {
       console.error("AI Stylist Error:", error);
 
-      /*
-       * Fallback keeps the feature usable even if the backend
-       * temporarily fails.
-       */
       const lower = userText.toLowerCase();
 
       let fallbackLook = {
@@ -213,7 +236,8 @@ function AIStylist() {
           description:
             "A beauty-focused look combining flattering makeup with skincare preparation.",
           fashion: "Minimal elegant outfit to complement the makeup",
-          makeup: "Soft foundation, blush, defined eyes, and a flattering lipstick",
+          makeup:
+            "Soft foundation, blush, defined eyes, and a flattering lipstick",
           skincare: "Cleanser, moisturizer, and SPF for a smooth base",
         };
       } else if (
@@ -252,13 +276,11 @@ function AIStylist() {
 
   return (
     <section className="relative overflow-hidden bg-black px-5 py-24 sm:px-6 sm:py-32">
-      {/* Ambient Glows */}
       <div className="pointer-events-none absolute left-[10%] top-1/4 h-80 w-80 rounded-full bg-pink-500/10 blur-[140px]" />
 
       <div className="pointer-events-none absolute bottom-0 right-[5%] h-96 w-96 rounded-full bg-purple-500/10 blur-[150px]" />
 
       <div className="relative mx-auto max-w-7xl">
-        {/* Heading */}
         <div className="mx-auto mb-14 max-w-3xl text-center">
           <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-pink-400/20 bg-pink-400/10 px-4 py-2 backdrop-blur-xl">
             <span className="h-2 w-2 animate-pulse rounded-full bg-pink-400" />
@@ -281,12 +303,9 @@ function AIStylist() {
           </p>
         </div>
 
-        {/* AI Interface */}
         <div className="relative overflow-hidden rounded-[2.5rem] border border-white/10 bg-white/5 p-2 shadow-2xl backdrop-blur-2xl sm:p-3">
           <div className="grid overflow-hidden rounded-[2rem] border border-white/10 bg-black/60 lg:grid-cols-2">
-            {/* LEFT - CHAT */}
             <div className="flex min-h-[540px] flex-col justify-between p-6 sm:p-8 lg:p-10">
-              {/* Header */}
               <div className="flex items-center justify-between border-b border-white/10 pb-6">
                 <div className="flex items-center gap-3">
                   <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-pink-500/10 text-xl">
@@ -311,7 +330,6 @@ function AIStylist() {
                 </div>
               </div>
 
-              {/* Chat */}
               <div className="flex max-h-[340px] flex-1 flex-col gap-4 overflow-y-auto py-6 pr-2">
                 {messages.map((msg, index) => (
                   <div
@@ -335,7 +353,6 @@ function AIStylist() {
                 )}
               </div>
 
-              {/* Quick Suggestions */}
               <div className="mb-3 flex flex-wrap gap-2">
                 {[
                   "Wedding look",
@@ -354,7 +371,6 @@ function AIStylist() {
                 ))}
               </div>
 
-              {/* Input */}
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
@@ -382,12 +398,10 @@ function AIStylist() {
               </form>
             </div>
 
-            {/* RIGHT - LOOK CARD */}
             <div className="relative flex min-h-[540px] items-center justify-center overflow-hidden border-t border-white/10 bg-white/[0.02] p-6 lg:border-l lg:border-t-0">
               <div className="absolute h-80 w-80 rounded-full bg-pink-500/20 blur-[100px]" />
 
               <div className="relative w-[min(78vw,21rem)] rotate-[-2deg] rounded-[2.5rem] border border-white/20 bg-white/[0.07] p-5 shadow-2xl backdrop-blur-2xl transition duration-500 hover:rotate-0">
-                {/* Main Look */}
                 <div className="flex min-h-[250px] flex-col items-center justify-center overflow-hidden rounded-[2rem] border border-white/10 bg-black/40 p-6 text-center">
                   <div className="text-[5.5rem] transition duration-500 hover:scale-110">
                     {currentLook.emoji}
@@ -408,7 +422,6 @@ function AIStylist() {
                   </p>
                 </div>
 
-                {/* Score */}
                 <div className="mt-5 flex items-center justify-between">
                   <div>
                     <p className="text-[10px] uppercase tracking-wider text-gray-500">
@@ -425,7 +438,6 @@ function AIStylist() {
                   </div>
                 </div>
 
-                {/* Recommendation Details */}
                 <div className="mt-5 grid gap-2">
                   <div className="rounded-xl border border-white/10 bg-white/5 p-3">
                     <p className="text-[9px] uppercase tracking-wider text-pink-300">
@@ -459,7 +471,6 @@ function AIStylist() {
                 </div>
               </div>
 
-              {/* Occasion */}
               <div className="absolute left-4 top-8 rounded-2xl border border-white/10 bg-black/80 px-4 py-3 shadow-xl backdrop-blur-xl sm:left-8">
                 <p className="text-[10px] uppercase tracking-wider text-gray-500">
                   Occasion
@@ -470,7 +481,6 @@ function AIStylist() {
                 </p>
               </div>
 
-              {/* Style */}
               <div className="absolute bottom-8 right-4 rounded-2xl border border-white/10 bg-black/80 px-4 py-3 shadow-xl backdrop-blur-xl sm:right-8">
                 <p className="text-[10px] uppercase tracking-wider text-gray-500">
                   Personal Style
@@ -484,7 +494,6 @@ function AIStylist() {
           </div>
         </div>
 
-        {/* Feature Cards */}
         <div className="mt-8 grid gap-4 sm:grid-cols-3">
           <div className="rounded-2xl border border-white/10 bg-white/5 p-5 text-center backdrop-blur-xl transition duration-300 hover:-translate-y-1">
             <p className="text-xl">🧠</p>
