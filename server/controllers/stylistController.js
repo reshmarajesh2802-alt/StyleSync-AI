@@ -4,6 +4,8 @@ const generateRecommendation = async (req, res) => {
   try {
     const { prompt } = req.body;
 
+    console.log("AI Stylist request received:", prompt);
+
     if (!prompt || !prompt.trim()) {
       return res.status(400).json({
         success: false,
@@ -13,86 +15,100 @@ const generateRecommendation = async (req, res) => {
 
     const text = prompt.toLowerCase();
 
-    // Detect requested areas
-    const wantsFashion =
-      text.includes("dress") ||
-      text.includes("outfit") ||
-      text.includes("top") ||
-      text.includes("bottom") ||
-      text.includes("jacket") ||
-      text.includes("shoe") ||
-      text.includes("footwear") ||
-      text.includes("fashion") ||
-      text.includes("clothes");
+    // -----------------------------------
+    // PRODUCT CATEGORIES
+    // -----------------------------------
 
-    const wantsMakeup =
-      text.includes("makeup") ||
-      text.includes("lipstick") ||
-      text.includes("foundation") ||
-      text.includes("concealer") ||
-      text.includes("blush") ||
-      text.includes("eye makeup");
-
-    const wantsSkincare =
-      text.includes("skincare") ||
-      text.includes("skin") ||
-      text.includes("serum") ||
-      text.includes("moisturizer") ||
-      text.includes("cleanser") ||
-      text.includes("spf");
-
-    // Find products from the actual StyleSync catalogue
-    const products = await Product.find({ stock: { $gt: 0 } })
-      .limit(53)
-      .lean();
-
-    const fashionProducts = products.filter((product) =>
-      [
-        "Dresses",
-        "Tops",
-        "Bottoms",
-        "Jackets",
-        "Footwear",
-        "Accessories",
-      ].includes(product.category)
-    );
-
-    const makeupProducts = products.filter((product) =>
-      [
-        "Lipsticks",
-        "Foundation",
-        "Concealer",
-        "Blush",
-        "Eye Makeup",
-        "Makeup Tools",
-      ].includes(product.category)
-    );
-
-    const skincareProducts = products.filter(
-      (product) => product.category === "Skincare"
-    );
-
-    // Select products based on the user's request
-    let selectedFashion = fashionProducts.slice(0, 4);
-    let selectedMakeup = makeupProducts.slice(0, 3);
-    let selectedSkincare = skincareProducts.slice(0, 2);
-
-    // If the user specifically requests a category,
-    // prioritize products from that category.
-    const categoryPriority = [
+    const fashionCategories = [
       "Dresses",
       "Tops",
       "Bottoms",
       "Jackets",
       "Footwear",
       "Accessories",
+    ];
+
+    const makeupCategories = [
       "Lipsticks",
       "Foundation",
       "Concealer",
       "Blush",
       "Eye Makeup",
       "Makeup Tools",
-      "Skincare",
+    ];
+
+    const skincareCategories = ["Skincare"];
+
+    // -----------------------------------
+    // DETECT USER REQUIREMENTS
+    // -----------------------------------
+
+    const wantsFashion =
+      /dress|outfit|top|bottom|jeans|jacket|shoe|footwear|fashion|clothes/i.test(
+        text
+      );
+
+    const wantsMakeup =
+      /makeup|lipstick|foundation|concealer|blush|eye makeup|glam/i.test(text);
+
+    const wantsSkincare =
+      /skincare|skin|serum|moisturizer|cleanser|spf|glow/i.test(text);
+
+    // -----------------------------------
+    // GET AVAILABLE PRODUCTS
+    // -----------------------------------
+
+    console.log("Fetching StyleSync products...");
+
+    const products = await Product.find({
+      stock: { $gt: 0 },
+    })
+      .select(
+        "name description price image rating stock category isFeatured"
+      )
+      .lean();
+
+    console.log(`Products found: ${products.length}`);
+
+    if (!products.length) {
+      return res.status(404).json({
+        success: false,
+        message: "No products are currently available.",
+      });
+    }
+
+    // -----------------------------------
+    // SEPARATE PRODUCTS BY CATEGORY
+    // -----------------------------------
+
+    const fashionProducts = products.filter((product) =>
+      fashionCategories.includes(product.category)
+    );
+
+    const makeupProducts = products.filter((product) =>
+      makeupCategories.includes(product.category)
+    );
+
+    const skincareProducts = products.filter((product) =>
+      skincareCategories.includes(product.category)
+    );
+
+    // -----------------------------------
+    // SELECT PRODUCTS
+    // -----------------------------------
+
+    let selectedFashion = fashionProducts.slice(0, 4);
+    let selectedMakeup = makeupProducts.slice(0, 3);
+    let selectedSkincare = skincareProducts.slice(0, 2);
+
+    // -----------------------------------
+    // PRIORITIZE REQUESTED CATEGORY
+    // -----------------------------------
+
+    const categoryPriority = [
+      ...fashionCategories,
+      ...makeupCategories,
+      ...skincareCategories,
     ];
 
     const requestedCategories = categoryPriority.filter((category) =>
@@ -100,51 +116,40 @@ const generateRecommendation = async (req, res) => {
     );
 
     if (requestedCategories.length > 0) {
-      const prioritized = products.filter((product) =>
+      const prioritizedProducts = products.filter((product) =>
         requestedCategories.includes(product.category)
       );
 
-      if (prioritized.length > 0) {
-        if (
-          prioritized.some((product) =>
-            [
-              "Dresses",
-              "Tops",
-              "Bottoms",
-              "Jackets",
-              "Footwear",
-              "Accessories",
-            ].includes(product.category)
-          )
-        ) {
-          selectedFashion = prioritized.slice(0, 4);
-        }
+      const prioritizedFashion = prioritizedProducts.filter((product) =>
+        fashionCategories.includes(product.category)
+      );
 
-        if (
-          prioritized.some((product) =>
-            [
-              "Lipsticks",
-              "Foundation",
-              "Concealer",
-              "Blush",
-              "Eye Makeup",
-              "Makeup Tools",
-            ].includes(product.category)
-          )
-        ) {
-          selectedMakeup = prioritized.slice(0, 3);
-        }
+      const prioritizedMakeup = prioritizedProducts.filter((product) =>
+        makeupCategories.includes(product.category)
+      );
 
-        if (
-          prioritized.some((product) => product.category === "Skincare")
-        ) {
-          selectedSkincare = prioritized.slice(0, 2);
-        }
+      const prioritizedSkincare = prioritizedProducts.filter((product) =>
+        skincareCategories.includes(product.category)
+      );
+
+      if (prioritizedFashion.length > 0) {
+        selectedFashion = prioritizedFashion.slice(0, 4);
+      }
+
+      if (prioritizedMakeup.length > 0) {
+        selectedMakeup = prioritizedMakeup.slice(0, 3);
+      }
+
+      if (prioritizedSkincare.length > 0) {
+        selectedSkincare = prioritizedSkincare.slice(0, 2);
       }
     }
 
-    // Occasion detection
-    let occasion = "✨ Personalized Occasion";
+    // -----------------------------------
+    // OCCASION / STYLE DETECTION
+    // -----------------------------------
+
+    let occasion = "✨ Personalized Look";
     let title = "Curated Style";
     let styleVibe = "Contemporary";
     let emoji = "✨";
@@ -162,16 +167,15 @@ const generateRecommendation = async (req, res) => {
       emoji = "🥻";
       tags = ["Elegant", "Statement", "Glam"];
     } else if (
-      text.includes("casual") ||
       text.includes("college") ||
-      text.includes("day") ||
+      text.includes("casual") ||
       text.includes("street")
     ) {
-      occasion = "☀️ Daytime Outing";
-      title = "Urban Casual";
-      styleVibe = "Streetwear Luxe";
-      emoji = "🧥";
-      tags = ["Relaxed", "Effortless", "Clean"];
+      occasion = "☀️ Casual & College";
+      title = "Effortless Everyday";
+      styleVibe = "Minimal Casual";
+      emoji = "👖";
+      tags = ["Comfortable", "Simple", "Chic"];
     } else if (
       text.includes("office") ||
       text.includes("work") ||
@@ -204,65 +208,58 @@ const generateRecommendation = async (req, res) => {
       tags = ["Fresh", "Natural", "Radiant"];
     }
 
-    // Build recommendation text
-    const fashionText =
-      selectedFashion.length > 0
-        ? selectedFashion
-            .map((product) => product.name)
-            .slice(0, 3)
-            .join(", ")
-        : "Curated fashion pieces based on your request.";
+    // -----------------------------------
+    // DESCRIPTION
+    // -----------------------------------
 
-    const makeupText =
-      selectedMakeup.length > 0
-        ? selectedMakeup
-            .map((product) => product.name)
-            .slice(0, 3)
-            .join(", ")
-        : "Makeup recommendations selected to complement your look.";
-
-    const skincareText =
-      selectedSkincare.length > 0
-        ? selectedSkincare
-            .map((product) => product.name)
-            .slice(0, 2)
-            .join(", ")
-        : "Skincare products selected to complete your beauty routine.";
-
-    // Decide what to emphasize
     let description =
-      "A personalized StyleSync look combining fashion and beauty recommendations.";
+      "A personalized StyleSync look created from your preferences.";
 
     if (wantsFashion && wantsMakeup && wantsSkincare) {
       description =
         "A complete head-to-toe look combining fashion, makeup, and skincare.";
     } else if (wantsMakeup && wantsSkincare) {
       description =
-        "A coordinated beauty routine combining makeup and skincare recommendations.";
+        "A coordinated beauty routine combining makeup and skincare.";
     } else if (wantsMakeup) {
       description =
         "A personalized makeup look selected to complement your style.";
     } else if (wantsSkincare) {
       description =
-        "A personalized skincare routine selected for a fresh and healthy-looking finish.";
+        "A personalized skincare routine for a fresh and healthy-looking finish.";
     } else if (wantsFashion) {
       description =
         "A personalized fashion look selected according to your requested style.";
     }
 
+    // -----------------------------------
+    // FINAL RECOMMENDATION
+    // -----------------------------------
+
     const recommendation = {
       title,
       tags,
+
       matchScore: Math.floor(Math.random() * 6) + 94,
+
       occasion,
       styleVibe,
       emoji,
+
+      // These match the frontend
+      outfitType: extractValue(prompt, "outfit"),
+      color: extractColor(prompt),
+      season: extractSeason(prompt),
+
       description,
 
-      fashion: fashionText,
-      makeup: makeupText,
-      skincare: skincareText,
+      // IMPORTANT:
+      // These are arrays because Stylist.jsx uses .map()
+      fashion: selectedFashion,
+      makeup: selectedMakeup,
+      skincare: selectedSkincare,
 
+      // Keep product grouping too
       products: {
         fashion: selectedFashion,
         makeup: selectedMakeup,
@@ -272,9 +269,13 @@ const generateRecommendation = async (req, res) => {
       prompt,
     };
 
+    console.log("AI Stylist recommendation created successfully.");
+
     return res.status(200).json({
       success: true,
+
       message: `I've created a personalized look based on "${prompt}". ✨`,
+
       recommendation,
     });
   } catch (error) {
@@ -282,10 +283,56 @@ const generateRecommendation = async (req, res) => {
 
     return res.status(500).json({
       success: false,
-      message: error.message,
+      message: "Unable to generate your recommendation.",
+      error: error.message,
     });
   }
 };
+
+// -----------------------------------
+// HELPER FUNCTIONS
+// -----------------------------------
+
+function extractValue(prompt, keyword) {
+  const match = prompt.match(
+    new RegExp(`for ([^.]+)`, "i")
+  );
+
+  return match ? match[1].trim() : "";
+}
+
+function extractColor(prompt) {
+  const colors = [
+    "Pink",
+    "Teal / Blue",
+    "Black",
+    "White",
+    "Green",
+    "Red",
+    "Pastel",
+  ];
+
+  const found = colors.find((color) =>
+    prompt.toLowerCase().includes(color.toLowerCase())
+  );
+
+  return found || "";
+}
+
+function extractSeason(prompt) {
+  const seasons = [
+    "Summer",
+    "Winter",
+    "Monsoon",
+    "Spring",
+  ];
+
+  const found = seasons.find((season) =>
+    prompt.toLowerCase().includes(season.toLowerCase())
+  );
+
+  return found || "";
+}
 
 module.exports = {
   generateRecommendation,
