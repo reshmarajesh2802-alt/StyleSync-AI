@@ -11,7 +11,7 @@ if (typeof generateRecommendation !== "function") {
 }
 
 // Option A: If the route requires authentication
-router.post("/recommend", protect, generateRecommendation);
+router.post("/recommend", generateRecommendation);
 
 // Option B: If the route is public (remove 'protect')
 // router.post("/recommend", generateRecommendation);

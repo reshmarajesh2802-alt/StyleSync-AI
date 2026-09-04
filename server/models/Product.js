@@ -11,6 +11,7 @@ const productSchema = new mongoose.Schema(
     description: {
       type: String,
       required: true,
+      trim: true,
     },
 
     price: {
@@ -23,19 +24,33 @@ const productSchema = new mongoose.Schema(
       type: String,
       required: true,
       enum: [
+        // Western Fashion
         "Dresses",
-  "Tops",
-  "Bottoms",
-  "Jackets",
-  "Footwear",
-  "Accessories",
-  "Lipsticks",
-  "Foundation",
-  "Concealer",
-  "Blush",
-  "Eye Makeup",
-  "Makeup Tools",
-  "Skincare",
+        "Tops",
+        "Bottoms",
+        "Jackets",
+        "Footwear",
+        "Accessories",
+
+        // Indian / Ethnic Fashion
+        "Sarees",
+        "Kurtis",
+        "Lehengas",
+        "Gowns",
+        "Churidars",
+        "Salwar Suits",
+        "Anarkali",
+        "Ethnic Sets",
+        "Dupattas",
+
+        // Beauty
+        "Lipsticks",
+        "Foundation",
+        "Concealer",
+        "Blush",
+        "Eye Makeup",
+        "Makeup Tools",
+        "Skincare",
       ],
     },
 
