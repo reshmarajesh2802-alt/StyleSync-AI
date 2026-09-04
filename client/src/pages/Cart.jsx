@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import API_URL from "../api";
 
 export function Cart() {
   const navigate = useNavigate();
@@ -51,10 +52,7 @@ export function Cart() {
   // SAVE WISHLIST
   // =========================
   useEffect(() => {
-    localStorage.setItem(
-      "wishlist",
-      JSON.stringify(wishlist)
-    );
+    localStorage.setItem("wishlist", JSON.stringify(wishlist));
   }, [wishlist]);
 
   // =========================
@@ -71,7 +69,7 @@ export function Cart() {
 
       try {
         const response = await fetch(
-          "/api/auth/addresses",
+          `${API_URL}/auth/addresses`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -216,7 +214,7 @@ export function Cart() {
 
     try {
       const response = await fetch(
-        "/api/auth/addresses",
+        `${API_URL}/auth/addresses`,
         {
           method: "POST",
           headers: {
@@ -244,7 +242,7 @@ export function Cart() {
 
       // Refresh addresses from server
       const refreshResponse = await fetch(
-        "/api/auth/addresses",
+        `${API_URL}/auth/addresses`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -254,6 +252,13 @@ export function Cart() {
 
       const refreshData =
         await refreshResponse.json();
+
+      if (!refreshResponse.ok) {
+        throw new Error(
+          refreshData.message ||
+            "Failed to refresh addresses"
+        );
+      }
 
       const updatedAddresses =
         refreshData.addresses || [];
@@ -368,12 +373,11 @@ export function Cart() {
       );
 
       const response = await fetch(
-        "/api/orders",
+        `${API_URL}/orders`,
         {
           method: "POST",
           headers: {
-            "Content-Type":
-              "application/json",
+            "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
@@ -414,9 +418,7 @@ export function Cart() {
       // Clear cart after successful order
       setCart([]);
 
-      localStorage.removeItem(
-        "cart"
-      );
+      localStorage.removeItem("cart");
 
       setOrderMessage(
         `Order ${
@@ -566,9 +568,9 @@ export function Cart() {
               {/* DELIVERY ADDRESS */}
               {/* ========================= */}
               <div
-  id="delivery-address"
-  className="mb-6 rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl"
->
+                id="delivery-address"
+                className="mb-6 rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl"
+              >
                 <div className="flex items-center justify-between gap-4">
                   <div>
                     <p className="text-xs uppercase tracking-[0.2em] text-gray-500">
@@ -865,7 +867,7 @@ export function Cart() {
                             }
                             placeholder="City"
                             required
-                            className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none placeholder:text-gray-600 focus:border-pink-400/50"
+                            className="rounded-xl border border-white/10 bg-white/5 bg-white/5 px-4 py-3 text-sm text-white outline-none placeholder:text-gray-600 focus:border-pink-400/50"
                           />
 
                           <input

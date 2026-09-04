@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 
-const API_URL = "/api";
+import API_URL from "../api";;
 
 export function Login() {
   const navigate = useNavigate();

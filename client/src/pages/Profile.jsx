@@ -1,6 +1,8 @@
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 
+import API_URL from "../api";
+
 function Profile() {
   const navigate = useNavigate();
 
@@ -78,8 +80,7 @@ function Profile() {
           return;
         }
 
-        const response = await fetch("http://localhost:5000/api/auth/profile", {
-          method: "GET",
+        const response = await fetch(`${API_URL}/auth/profile`, {  method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -210,7 +211,7 @@ function Profile() {
 
       const token = localStorage.getItem("token");
 
-      const response = await fetch("http://localhost:5000/api/auth/profile", {
+      const response = await fetch(`${API_URL}/auth/profile`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

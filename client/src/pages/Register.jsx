@@ -1,12 +1,11 @@
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 
-const API_URL = "/api";
+import API_URL from "../api";
 
 function Register() {
   const navigate = useNavigate();
-  const isMounted = useRef(true);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -19,19 +18,17 @@ function Register() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    return () => {
-      isMounted.current = false;
-    };
-  }, []);
-
   const handleChange = (e) => {
     const { name, value } = e.target;
+
     setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
-    if (error) setError("");
+
+    if (error) {
+      setError("");
+    }
   };
 
   const validateForm = () => {
@@ -42,6 +39,7 @@ function Register() {
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
     if (!emailRegex.test(email.trim())) {
       return "Please enter a valid email address.";
     }
@@ -61,6 +59,7 @@ function Register() {
     e.preventDefault();
 
     const validationError = validateForm();
+
     if (validationError) {
       setError(validationError);
       return;
@@ -88,20 +87,18 @@ function Register() {
         throw new Error(data.message || "Registration failed");
       }
 
+      // Save authentication details
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
 
-      if (isMounted.current) {
-        navigate("/dashboard");
-      }
+      // Successful registration
+      navigate("/dashboard");
     } catch (err) {
-      if (isMounted.current) {
-        setError(err.message || "An unexpected error occurred.");
-      }
+      // Show backend error immediately
+      setError(err.message || "An unexpected error occurred.");
     } finally {
-      if (isMounted.current) {
-        setLoading(false);
-      }
+      // Always stop loading, whether signup succeeds or fails
+      setLoading(false);
     }
   };
 
@@ -109,6 +106,7 @@ function Register() {
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-black px-5 py-12 text-white">
       {/* Background Glows */}
       <div className="pointer-events-none absolute left-1/4 top-1/4 h-72 w-72 rounded-full bg-pink-500/20 blur-[120px]" />
+
       <div className="pointer-events-none absolute bottom-0 right-1/4 h-80 w-80 rounded-full bg-purple-500/20 blur-[140px]" />
 
       <div className="relative z-10 w-full max-w-md">
@@ -118,6 +116,7 @@ function Register() {
             <span className="text-pink-300">StyleSync</span>
             <span className="text-white"> AI</span>
           </Link>
+
           <p className="mt-3 text-sm text-gray-400">
             Create your personal style profile ✨
           </p>
@@ -126,10 +125,14 @@ function Register() {
         {/* Form Card */}
         <div className="rounded-[2rem] border border-white/10 bg-white/[0.06] p-7 shadow-2xl backdrop-blur-2xl sm:p-9">
           <div className="mb-8">
-            <p className="mb-2 text-sm uppercase tracking-[0.25em] text-pink-400 font-semibold">
+            <p className="mb-2 text-sm font-semibold uppercase tracking-[0.25em] text-pink-400">
               WELCOME
             </p>
-            <h1 className="text-3xl font-bold">Create Account</h1>
+
+            <h1 className="text-3xl font-bold">
+              Create Account
+            </h1>
+
             <p className="mt-2 text-sm text-gray-400">
               Start your StyleSync journey.
             </p>
@@ -137,12 +140,16 @@ function Register() {
 
           {/* Error Message */}
           {error && (
-            <div className="mb-5 rounded-2xl border border-red-400/30 bg-red-500/20 px-4 py-3 text-sm font-medium text-red-300 text-center">
+            <div className="mb-5 rounded-2xl border border-red-400/30 bg-red-500/20 px-4 py-3 text-center text-sm font-medium text-red-300">
               ⚠️ {error}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+          <form
+            onSubmit={handleSubmit}
+            className="space-y-5"
+            noValidate
+          >
             {/* Name Input */}
             <div>
               <label
@@ -151,6 +158,7 @@ function Register() {
               >
                 Full Name
               </label>
+
               <input
                 id="name"
                 name="name"
@@ -170,6 +178,7 @@ function Register() {
               >
                 Email Address
               </label>
+
               <input
                 id="email"
                 name="email"
@@ -189,6 +198,7 @@ function Register() {
               >
                 Password
               </label>
+
               <div className="relative">
                 <input
                   id="password"
@@ -199,13 +209,24 @@ function Register() {
                   placeholder="At least 6 characters"
                   className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 pr-11 text-sm text-white outline-none transition placeholder:text-gray-600 focus:border-pink-400/50 focus:bg-white/10"
                 />
+
                 <button
                   type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3.5 top-3.5 text-gray-400 hover:text-pink-300 transition p-0.5"
-                  title={showPassword ? "Hide password" : "Show password"}
+                  onClick={() =>
+                    setShowPassword(!showPassword)
+                  }
+                  className="absolute right-3.5 top-3.5 p-0.5 text-gray-400 transition hover:text-pink-300"
+                  title={
+                    showPassword
+                      ? "Hide password"
+                      : "Show password"
+                  }
                 >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showPassword ? (
+                    <EyeOff className="h-5 w-5" />
+                  ) : (
+                    <Eye className="h-5 w-5" />
+                  )}
                 </button>
               </div>
             </div>
@@ -218,6 +239,7 @@ function Register() {
               >
                 Confirm Password
               </label>
+
               <div className="relative">
                 <input
                   id="confirmPassword"
@@ -228,13 +250,24 @@ function Register() {
                   placeholder="Re-enter your password"
                   className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 pr-11 text-sm text-white outline-none transition placeholder:text-gray-600 focus:border-pink-400/50 focus:bg-white/10"
                 />
+
                 <button
                   type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3.5 top-3.5 text-gray-400 hover:text-pink-300 transition p-0.5"
-                  title={showPassword ? "Hide password" : "Show password"}
+                  onClick={() =>
+                    setShowPassword(!showPassword)
+                  }
+                  className="absolute right-3.5 top-3.5 p-0.5 text-gray-400 transition hover:text-pink-300"
+                  title={
+                    showPassword
+                      ? "Hide password"
+                      : "Show password"
+                  }
                 >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showPassword ? (
+                    <EyeOff className="h-5 w-5" />
+                  ) : (
+                    <Eye className="h-5 w-5" />
+                  )}
                 </button>
               </div>
             </div>
@@ -243,9 +276,11 @@ function Register() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full rounded-full bg-pink-100/90 px-6 py-4 font-bold text-black transition duration-300 hover:scale-[1.02] hover:bg-pink-100 disabled:cursor-not-allowed disabled:opacity-60 shadow-lg shadow-pink-500/10"
+              className="w-full rounded-full bg-pink-100/90 px-6 py-4 font-bold text-black shadow-lg shadow-pink-500/10 transition duration-300 hover:scale-[1.02] hover:bg-pink-100 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {loading ? "Creating Account..." : "Create Account ✨"}
+              {loading
+                ? "Creating Account..."
+                : "Create Account ✨"}
             </button>
           </form>
 
